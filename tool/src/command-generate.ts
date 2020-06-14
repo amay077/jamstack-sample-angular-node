@@ -19,7 +19,7 @@ type PR = {
 }
 
 export class CommandGenerate {
-  private readonly user = 'amay077';
+  private readonly user = 'microsoft';
   private readonly maxRepoCount = 10;
   private readonly maxPrCount = 100;
   private accessToken = '';
