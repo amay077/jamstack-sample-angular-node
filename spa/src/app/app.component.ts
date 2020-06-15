@@ -33,9 +33,16 @@ export class AppComponent implements OnInit {
 
   get displayItems(): PR[] {
     if (this.latestOnly) {
-      return Enumerable.from(this.items).distinct(pr => pr.team_url).toArray();
+      return Enumerable.from(this.items)
+        .where(pr => pr.merged_at != null)
+        .orderByDescending(pr => pr.merged_at)
+        .distinct(pr => pr.team_url)
+        .toArray();
     } else {
-      return this.items;
+      return Enumerable.from(this.items)
+        .where(pr => pr.merged_at != null)
+        .orderByDescending(pr => pr.merged_at)
+        .toArray();
     }
   }
 
