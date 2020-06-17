@@ -6,6 +6,11 @@ import { StringUtils } from './utils/string-utils';
 import fs from 'fs-extra';
 import Path from 'path';
 
+type Repo = {
+  name: string,
+  stars: number,
+}
+
 type PR = {
   team: string,
   team_url: string,
@@ -16,12 +21,13 @@ type PR = {
   updated_at: Dayjs,
   user_id: string,
   user_url: string,
+  stars: number,
 }
 
 export class CommandGenerate {
   private readonly user = 'microsoft';
-  private readonly maxRepoCount = 10;
-  private readonly maxPrCount = 100;
+  private readonly maxRepoCount = 2;
+  private readonly maxPrCount = 10;
   private accessToken = '';
 
   async run(): Promise<number> {
@@ -39,14 +45,14 @@ export class CommandGenerate {
 
     let arr = Enumerable.empty<PR>();
     for (const repo of repos.toArray()) {
-      console.info(`${this.constructor.name}:: ${repo} start`);
+      console.info(`${this.constructor.name}:: ${repo.name} start`);
       try {
         const res = await this.loadPR(repo);
         arr = arr.merge(res);
       } catch (error) {
-        console.warn(`${this.constructor.name}::error`, repo, error);
+        console.warn(`${this.constructor.name}::error`, repo.name, error);
       }
-      console.info(`${this.constructor.name}:: ${repo} finished`);
+      console.info(`${this.constructor.name}:: ${repo.name} finished`);
     }
 
     const items = arr
@@ -64,7 +70,7 @@ export class CommandGenerate {
     return code;
   }
 
-  async loadRepos(user: string): Promise<Enumerable.IEnumerable<string>> {
+  async loadRepos(user: string): Promise<Enumerable.IEnumerable<Repo>> {
     console.log(`${this.constructor.name}:: CommandGenerate -> loadRepos`, user);
     const config = {
       headers: {
@@ -76,10 +82,10 @@ export class CommandGenerate {
       `https://api.github.com/users/${user}/repos?sort=pushed&page=1&per_page=${this.maxRepoCount}`,
       config);
 
-    return Enumerable.from(results.data as any[]).select(repo => repo.full_name);
+    return Enumerable.from(results.data as any[]).select(repo => ({ name: repo.full_name, stars: repo.stargazers_count }));
   }
 
-  async loadPR(repo: string): Promise<Enumerable.IEnumerable<PR>> {
+  async loadPR(repo: Repo): Promise<Enumerable.IEnumerable<PR>> {
 
     const config = {
       headers: {
@@ -88,12 +94,13 @@ export class CommandGenerate {
     };
 
     const results = await axios.get<any>(
-      `https://api.github.com/repos/${repo}/pulls?state=closed&sort=updated&direction=desc&page=1&per_page=${this.maxPrCount}`,
+      `https://api.github.com/repos/${repo.name}/pulls?state=closed&sort=updated&direction=desc&page=1&per_page=${this.maxPrCount}`,
       config);
 
     return Enumerable.from(results.data as any[]).select(pr => ({
-      team: repo,
-      team_url: `https://github.com/${repo}`,
+      team: repo.name,
+      team_url: `https://github.com/${repo.name}`,
+      stars: repo.stars,
       number: pr.number,
       title:  pr.title,
       url:  pr.html_url,
