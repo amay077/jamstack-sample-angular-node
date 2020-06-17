@@ -26,8 +26,8 @@ type PR = {
 
 export class CommandGenerate {
   private readonly user = 'microsoft';
-  private readonly maxRepoCount = 2;
-  private readonly maxPrCount = 10;
+  private readonly maxRepoCount = 10;
+  private readonly maxPrCount = 100;
   private accessToken = '';
 
   async run(): Promise<number> {
