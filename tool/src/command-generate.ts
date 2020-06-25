@@ -25,7 +25,7 @@ type PR = {
 }
 
 export class CommandGenerate {
-  private readonly user = 'microsoft';
+  private readonly user = 'gsi-cyberjapan';
   private readonly maxRepoCount = 10;
   private readonly maxPrCount = 100;
   private accessToken = '';
