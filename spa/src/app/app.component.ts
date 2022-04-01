@@ -6,17 +6,16 @@ import { Dayjs } from 'dayjs';
 import data from '../data/data.json';
 
 type PR = {
-  place: string,
-  place_url: string,
   team: string,
   team_url: string,
   number: number,
   title: string,
   url: string,
-  merged_at: Dayjs,
-  updated_at: Dayjs,
+  merged_at: Dayjs | string,
+  updated_at: Dayjs | string,
   user_id: string,
   user_url: string,
+  stars: number | undefined,
 }
 
 @Component({
@@ -27,8 +26,8 @@ type PR = {
 export class AppComponent implements OnInit {
   title = 'jamstack-sample-angular-node-spa';
   user = '';
-  items = [];
-  lastUpdateAt: Dayjs;
+  items: PR[] = [];
+  lastUpdateAt?: Dayjs = undefined;
   latestOnly = true;
 
   get displayItems(): PR[] {
@@ -56,7 +55,7 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
     this.user = data.user;
-    this.items = data.data;
+    this.items = data.data as PR[];
     this.lastUpdateAt = dayjs(data.last_update_at);
   }
 
